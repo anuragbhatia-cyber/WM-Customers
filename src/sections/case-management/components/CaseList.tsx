@@ -700,9 +700,9 @@ export function CaseList({
 
                     {/* Service Type */}
                     <div className="min-w-0">
-                      <span className="inline-block px-1.5 py-0.5 text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded truncate max-w-full" title={cs.serviceType}>
-                        {cs.serviceType.length > 22 ? cs.serviceType.slice(0, 20) + '…' : cs.serviceType}
-                      </span>
+                      <p className="text-xs text-neutral-700 dark:text-neutral-300 truncate" title={cs.serviceType}>
+                        {cs.serviceType}
+                      </p>
                     </div>
 
                     {/* Status */}
