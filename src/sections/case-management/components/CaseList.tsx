@@ -63,7 +63,7 @@ const STATUS_CONFIG: Record<CaseStatus, { label: string; dot: string; bg: string
   'on-hold': { label: 'On Hold', dot: 'bg-neutral-400', bg: 'bg-neutral-100 dark:bg-neutral-800', text: 'text-neutral-600 dark:text-neutral-400' },
 }
 
-type SortKey = 'lastUpdated' | 'customerName' | 'priority'
+type SortKey = 'lastUpdated' | 'createdAt' | 'customerName' | 'priority'
 type SortDir = 'asc' | 'desc'
 
 // ---------------------------------------------------------------------------
@@ -222,6 +222,9 @@ export function CaseList({
       switch (sortKey) {
         case 'lastUpdated':
           cmp = new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime()
+          break
+        case 'createdAt':
+          cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           break
         case 'customerName':
           cmp = a.customerName.localeCompare(b.customerName)
@@ -594,7 +597,7 @@ export function CaseList({
       {/* ── Table ────────────────────────────────────────────────────────── */}
       <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xs dark:shadow-none overflow-hidden">
           {/* Desktop header */}
-          <div className="hidden lg:grid grid-cols-[40px_100px_minmax(160px,1fr)_90px_80px_48px] gap-2 px-5 py-3 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-800 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 sticky top-0 z-10">
+          <div className="hidden lg:grid grid-cols-[40px_100px_minmax(160px,1fr)_90px_90px_90px_48px] gap-2 px-5 py-3 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-800 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 sticky top-0 z-10">
             <span className="flex items-center">
               <button
                 onClick={toggleSelectAll}
@@ -615,6 +618,7 @@ export function CaseList({
             <span>Case ID</span>
             <span>Service Type</span>
             <span className="text-center">Status</span>
+            <SortHeader label="Created" sortKey="createdAt" current={sortKey} dir={sortDir} onSort={toggleSort} />
             <SortHeader label="Updated" sortKey="lastUpdated" current={sortKey} dir={sortDir} onSort={toggleSort} />
             <span />
           </div>
@@ -671,7 +675,7 @@ export function CaseList({
                 <div key={cs.id}>
                   {/* ── Desktop row ───────────────────────────────── */}
                   <div
-                    className={`hidden lg:grid grid-cols-[40px_100px_minmax(160px,1fr)_90px_80px_48px] gap-2 px-5 py-3.5 items-center hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors cursor-pointer ${
+                    className={`hidden lg:grid grid-cols-[40px_100px_minmax(160px,1fr)_90px_90px_90px_48px] gap-2 px-5 py-3.5 items-center hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors cursor-pointer ${
                       !isLast ? 'border-b border-neutral-100 dark:border-neutral-800/60' : ''
                     } ${isSelected ? 'bg-yellow-50/50 dark:bg-yellow-950/20' : ''}`}
                     onClick={() => onView?.(cs.id)}
@@ -711,6 +715,11 @@ export function CaseList({
                         {statusCfg.label}
                       </span>
                     </div>
+
+                    {/* Created */}
+                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500 text-center whitespace-nowrap">
+                      {formatDate(cs.createdAt)}
+                    </p>
 
                     {/* Last Updated */}
                     <p className="text-[10px] text-neutral-400 dark:text-neutral-500 text-center whitespace-nowrap">
