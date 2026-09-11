@@ -127,6 +127,13 @@ function getInitialColor(name: string) {
   return INITIAL_COLORS[Math.abs(hash) % INITIAL_COLORS.length]
 }
 
+function formatCaseId(id: string): string {
+  const match = id.match(/(\d+)\s*$/)
+  if (!match) return id
+  const shifted = parseInt(match[1], 10) + 120
+  return `CASE-${String(shifted).padStart(5, '0')}`
+}
+
 function daysBetween(a: string, b: string) {
   return Math.max(0, Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000))
 }
@@ -231,7 +238,7 @@ export function CaseDetail({
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 font-[family-name:var(--font-mono,'IBM_Plex_Mono',ui-monospace,monospace)]">
-                  {caseData.id}
+                  {formatCaseId(caseData.id)}
                 </span>
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusCfg.bg} ${statusCfg.text}`}>
                   {statusCfg.label}
@@ -647,11 +654,11 @@ function DetailsTab({ caseData }: { caseData: Case }) {
 
         <SectionCard title="Case Information">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FieldRow label="Case ID" value={caseData.id} mono />
+            <FieldRow label="Case ID" value={formatCaseId(caseData.id)} mono />
             <FieldRow label="Customer ID" value={caseData.customerId} mono />
             <FieldRow label="Customer" value={caseData.customerName} />
             <FieldRow label="Service Type" value={caseData.serviceType} />
-            <FieldRow label="Assigned Lawyer" value={caseData.assignedLawyer} />
+            <FieldRow label="Wealth Manager" value={caseData.assignedLawyer} />
             <FieldRow label="Created" value={formatDate(caseData.createdAt)} />
             <FieldRow label="Last Updated" value={formatDate(caseData.lastUpdated)} />
           </div>

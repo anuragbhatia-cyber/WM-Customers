@@ -93,6 +93,13 @@ function priorityWeight(p: CasePriority) {
   return p === 'high' ? 3 : p === 'normal' ? 2 : 1
 }
 
+function formatCaseId(id: string): string {
+  const match = id.match(/(\d+)\s*$/)
+  if (!match) return id
+  const shifted = parseInt(match[1], 10) + 120
+  return `CASE-${String(shifted).padStart(5, '0')}`
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -698,7 +705,7 @@ export function CaseList({
                     {/* Case ID */}
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 font-[family-name:var(--font-mono,'IBM_Plex_Mono',ui-monospace,monospace)]">
-                        {cs.id.replace('W24-CASE-', '')}
+                        {formatCaseId(cs.id)}
                       </span>
                     </div>
 
