@@ -240,20 +240,6 @@ export function CaseDetail({
               <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mt-1.5 tracking-tight">
                 {caseData.serviceName}
               </h1>
-              <div className="flex items-center gap-3 mt-1.5 text-sm text-neutral-500 dark:text-neutral-400 flex-wrap">
-                <span className="flex items-center gap-1.5">
-                  <User size={13} />
-                  {caseData.customerName}
-                  <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-[family-name:var(--font-mono,'IBM_Plex_Mono',ui-monospace,monospace)]">
-                    {caseData.customerId}
-                  </span>
-                </span>
-                <span className="text-neutral-300 dark:text-neutral-700">|</span>
-                <span className="flex items-center gap-1.5">
-                  <Scale size={13} />
-                  {caseData.assignedLawyer}
-                </span>
-              </div>
             </div>
             </div>
           </div>
