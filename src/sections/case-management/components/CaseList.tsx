@@ -594,7 +594,7 @@ export function CaseList({
       {/* ── Table ────────────────────────────────────────────────────────── */}
       <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xs dark:shadow-none overflow-hidden">
           {/* Desktop header */}
-          <div className="hidden lg:grid grid-cols-[40px_100px_minmax(140px,1.5fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_90px_80px_48px] gap-2 px-5 py-3 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-800 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 sticky top-0 z-10">
+          <div className="hidden lg:grid grid-cols-[40px_100px_minmax(160px,1fr)_90px_80px_48px] gap-2 px-5 py-3 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-800 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 sticky top-0 z-10">
             <span className="flex items-center">
               <button
                 onClick={toggleSelectAll}
@@ -613,10 +613,7 @@ export function CaseList({
               </button>
             </span>
             <span>Case ID</span>
-            <SortHeader label="Customer" sortKey="customerName" current={sortKey} dir={sortDir} onSort={toggleSort} />
             <span>Service Type</span>
-            <span>Assigned Lawyer</span>
-            <span>Employee Assigned</span>
             <span className="text-center">Status</span>
             <SortHeader label="Updated" sortKey="lastUpdated" current={sortKey} dir={sortDir} onSort={toggleSort} />
             <span />
@@ -674,7 +671,7 @@ export function CaseList({
                 <div key={cs.id}>
                   {/* ── Desktop row ───────────────────────────────── */}
                   <div
-                    className={`hidden lg:grid grid-cols-[40px_100px_minmax(140px,1.5fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_90px_80px_48px] gap-2 px-5 py-3.5 items-center hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors cursor-pointer ${
+                    className={`hidden lg:grid grid-cols-[40px_100px_minmax(160px,1fr)_90px_80px_48px] gap-2 px-5 py-3.5 items-center hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors cursor-pointer ${
                       !isLast ? 'border-b border-neutral-100 dark:border-neutral-800/60' : ''
                     } ${isSelected ? 'bg-yellow-50/50 dark:bg-yellow-950/20' : ''}`}
                     onClick={() => onView?.(cs.id)}
@@ -701,35 +698,11 @@ export function CaseList({
                       </span>
                     </div>
 
-                    {/* Customer */}
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${getInitialColor(cs.customerName)}`}>
-                        {getInitials(cs.customerName)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">{cs.customerName}</p>
-                        <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-[family-name:var(--font-mono,'IBM_Plex_Mono',ui-monospace,monospace)]">{cs.customerId}</p>
-                      </div>
-                    </div>
-
                     {/* Service Type */}
                     <div className="min-w-0">
                       <span className="inline-block px-1.5 py-0.5 text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded truncate max-w-full" title={cs.serviceType}>
                         {cs.serviceType.length > 22 ? cs.serviceType.slice(0, 20) + '…' : cs.serviceType}
                       </span>
-                    </div>
-
-                    {/* Assigned Lawyer */}
-                    <div className="min-w-0">
-                      <p className="text-xs text-neutral-600 dark:text-neutral-300 truncate">{getLawyer(cs)}</p>
-                    </div>
-
-                    {/* Employee Assigned */}
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 ${getInitialColor(getEmployee(cs))}`}>
-                        {getInitials(getEmployee(cs))}
-                      </div>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-300 truncate">{getEmployee(cs)}</p>
                     </div>
 
                     {/* Status */}
