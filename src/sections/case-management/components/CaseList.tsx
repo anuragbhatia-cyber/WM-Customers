@@ -477,25 +477,6 @@ export function CaseList({
         <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">
-              Lawyer
-            </span>
-            <div className="relative">
-              <select
-                value={filterLawyer}
-                onChange={(e) => setFilterLawyer(e.target.value)}
-                className="h-[30px] appearance-none rounded-md border border-neutral-200 bg-white pl-2.5 pr-7 text-[12px] text-neutral-700 outline-none focus:border-yellow-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-              >
-                <option value="">All Lawyers</option>
-                {lawyerOptions.map((name) => (
-                  <option key={name} value={name}>{name}</option>
-                ))}
-              </select>
-              <ChevronDown size={12} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400" />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">
               Service Type
             </span>
             <div className="relative">
