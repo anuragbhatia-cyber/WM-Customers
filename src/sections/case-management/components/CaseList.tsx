@@ -700,7 +700,7 @@ export function CaseList({
 
                     {/* Service Type */}
                     <div className="min-w-0">
-                      <p className="text-xs text-neutral-700 dark:text-neutral-300 truncate" title={cs.serviceType}>
+                      <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 truncate" title={cs.serviceType}>
                         {cs.serviceType}
                       </p>
                     </div>
