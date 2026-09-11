@@ -367,7 +367,7 @@ export function CaseList({
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
-            All Cases
+            My Cases
           </h1>
         </div>
         <div className="flex items-center gap-2 mt-3 sm:mt-0">

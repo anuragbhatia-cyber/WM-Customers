@@ -18,7 +18,7 @@ export default function ShellPreview() {
     <AppShell
       navigationItems={navigationItems}
       user={user}
-      breadcrumbs={[{ label: 'My Cases' }]}
+      breadcrumbs={[]}
       onNavigate={(href) => navigateToSection(href)}
       onLogout={() => console.log('Logout')}
     >

@@ -35,35 +35,29 @@ export default function AppShell({
         <header className="flex h-[60px] shrink-0 items-center justify-between border-b border-neutral-200/80 bg-white px-6 dark:border-neutral-800 dark:bg-neutral-900">
           {/* Breadcrumbs */}
           <nav className="flex items-center gap-1.5 text-[13px]">
-            {breadcrumbs.length > 0 ? (
-              breadcrumbs.map((crumb, i) => (
-                <span key={i} className="flex items-center gap-1.5">
-                  {i > 0 && (
-                    <ChevronRight
-                      size={12}
-                      strokeWidth={2}
-                      className="text-neutral-300 dark:text-neutral-600"
-                    />
-                  )}
-                  {crumb.href && i < breadcrumbs.length - 1 ? (
-                    <button
-                      onClick={() => onNavigate?.(crumb.href!)}
-                      className="text-neutral-400 transition-colors hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300"
-                    >
-                      {crumb.label}
-                    </button>
-                  ) : (
-                    <span className="font-semibold text-neutral-800 dark:text-neutral-100">
-                      {crumb.label}
-                    </span>
-                  )}
-                </span>
-              ))
-            ) : (
-              <span className="font-semibold text-neutral-800 dark:text-neutral-100">
-                Dashboard
+            {breadcrumbs.map((crumb, i) => (
+              <span key={i} className="flex items-center gap-1.5">
+                {i > 0 && (
+                  <ChevronRight
+                    size={12}
+                    strokeWidth={2}
+                    className="text-neutral-300 dark:text-neutral-600"
+                  />
+                )}
+                {crumb.href && i < breadcrumbs.length - 1 ? (
+                  <button
+                    onClick={() => onNavigate?.(crumb.href!)}
+                    className="text-neutral-400 transition-colors hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300"
+                  >
+                    {crumb.label}
+                  </button>
+                ) : (
+                  <span className="font-semibold text-neutral-800 dark:text-neutral-100">
+                    {crumb.label}
+                  </span>
+                )}
               </span>
-            )}
+            ))}
           </nav>
 
           {/* Right: search + quick actions + user menu */}
