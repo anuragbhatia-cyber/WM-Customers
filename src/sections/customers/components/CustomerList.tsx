@@ -1384,15 +1384,6 @@ export function CustomerList({
                             />
                             <div className="my-1 border-t border-neutral-100 dark:border-neutral-700" />
                             <MenuItem
-                              icon={<Send size={13} />}
-                              label="Send Quotation"
-                              onClick={() => {
-                                openQuotationModal(customer.id)
-                                setOpenMenu(null)
-                              }}
-                              accent
-                            />
-                            <MenuItem
                               icon={<FolderOpen size={13} />}
                               label="View Cases"
                               onClick={() => {
