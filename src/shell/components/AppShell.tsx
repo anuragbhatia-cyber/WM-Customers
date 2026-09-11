@@ -1,7 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import MainNav, { type NavItem } from './MainNav'
 import UserMenu from './UserMenu'
-import QuickActionsMenu from './QuickActionsMenu'
 import CommandPalette from './CommandPalette'
 import CommandPaletteTrigger from './CommandPaletteTrigger'
 
@@ -70,7 +69,6 @@ export default function AppShell({
           {/* Right: search + quick actions + user menu */}
           <div className="flex items-center gap-3">
             <CommandPaletteTrigger />
-            <QuickActionsMenu />
             <UserMenu user={user} onLogout={onLogout} />
           </div>
         </header>

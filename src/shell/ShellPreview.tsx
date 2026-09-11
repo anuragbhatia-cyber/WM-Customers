@@ -5,7 +5,7 @@ import { navigateToScreen } from '@/lib/preview-navigation'
 import data from '@/../product/sections/dashboard-home/data.json'
 
 const navigationItems = [
-  { label: 'Case Management', href: '/case-management', isActive: true },
+  { label: 'My Cases', href: '/case-management', isActive: true },
 ]
 
 const user = {

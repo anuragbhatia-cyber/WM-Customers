@@ -375,13 +375,6 @@ export function CaseList({
             <Download size={13} />
             Export
           </button>
-          <button
-            onClick={onCreate}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-500 transition-colors cursor-pointer shadow-sm"
-          >
-            <Plus size={13} />
-            Add New Case
-          </button>
         </div>
       </div>
 
