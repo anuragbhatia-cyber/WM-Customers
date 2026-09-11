@@ -23,5 +23,5 @@ Internal users and roles, lawyers directory, and HRMS for employee management.
 ### 7. Reports & Analytics
 Sales, cases, accounts, and Wealth Manager performance dashboards with export.
 
-### 8. Dashboard Home
+### 8. Home
 Admin landing page with KPI widgets, activity feed, SLA alerts, and quick actions.
