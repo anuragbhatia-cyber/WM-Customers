@@ -750,7 +750,6 @@ export function CaseList({
                           <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
                           <div className="absolute right-0 top-8 z-20 w-44 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-lg py-1.5 text-sm">
                             <MenuItem icon={<Eye size={13} />} label="View Case" onClick={() => { onView?.(cs.id); setOpenMenu(null) }} />
-                            <MenuItem icon={<Pencil size={13} />} label="Edit Case" onClick={() => { openEditModal(cs); setOpenMenu(null) }} />
                           </div>
                         </>
                       )}
