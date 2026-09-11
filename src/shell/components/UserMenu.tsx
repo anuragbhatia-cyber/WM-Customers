@@ -68,9 +68,6 @@ export default function UserMenu({ user, onLogout }: UserMenuProps) {
             <p className="text-[13px] font-semibold text-neutral-900 dark:text-neutral-100">
               {user?.name}
             </p>
-            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-              {user?.role || 'Product Manager'}
-            </p>
           </div>
           <div className="py-1">
             <button
