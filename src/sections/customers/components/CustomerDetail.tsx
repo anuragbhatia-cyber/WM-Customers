@@ -16,6 +16,7 @@ import {
   Calendar,
   Download,
   Eye,
+  EyeOff,
   UserCircle,
   Hash,
   Paperclip,
@@ -668,93 +669,149 @@ function CasesTab({ cases, onViewCase }: { cases: CustomerCase[]; onViewCase?: (
 // ── Documents Tab ───────────────────────────────────────────────────────────
 
 function DocumentsTab({ documents, onDownload }: { documents: CustomerDocument[]; onDownload?: (docId: string) => void }) {
+  const [hiddenDocIds, setHiddenDocIds] = useState<Set<string>>(new Set())
+
+  function toggleVisibility(docId: string) {
+    setHiddenDocIds(prev => {
+      const next = new Set(prev)
+      if (next.has(docId)) next.delete(docId)
+      else next.add(docId)
+      return next
+    })
+  }
+
   if (documents.length === 0) {
     return <EmptyState icon={<FileText size={32} />} title="No documents" description="No documents have been generated for this customer." />
   }
 
+  const hiddenCount = hiddenDocIds.size
+
   return (
-    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xs dark:shadow-none overflow-hidden">
-      {/* Header */}
-      <div className="grid grid-cols-[1fr_100px_80px_60px_80px_48px] gap-2 px-5 py-3 bg-neutral-50 dark:bg-neutral-800/40 border-b border-neutral-200 dark:border-neutral-800 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 hidden sm:grid">
-        <span>Document</span>
-        <span>Type</span>
-        <span className="text-center">Version</span>
-        <span className="text-center">Format</span>
-        <span className="text-center">Status</span>
-        <span />
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          Control which documents are visible to wealth managers and lawyers.
+        </p>
+        {hiddenCount > 0 && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+            <EyeOff size={10} />
+            {hiddenCount} hidden
+          </span>
+        )}
       </div>
 
-      {documents.map((doc, idx) => {
-        const statusCfg = DOC_STATUS[doc.status]
-        const isLast = idx === documents.length - 1
+      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xs dark:shadow-none overflow-hidden">
+        {/* Header */}
+        <div className="grid grid-cols-[1fr_100px_80px_60px_80px_80px_48px] gap-2 px-5 py-3 bg-neutral-50 dark:bg-neutral-800/40 border-b border-neutral-200 dark:border-neutral-800 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 hidden sm:grid">
+          <span>Document</span>
+          <span>Type</span>
+          <span className="text-center">Version</span>
+          <span className="text-center">Format</span>
+          <span className="text-center">Status</span>
+          <span className="text-center">Visibility</span>
+          <span />
+        </div>
 
-        return (
-          <div key={doc.id}>
-            {/* Desktop row */}
-            <div
-              className={`hidden sm:grid grid-cols-[1fr_100px_80px_60px_80px_48px] gap-2 px-5 py-3.5 items-center hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors ${
-                !isLast ? 'border-b border-neutral-100 dark:border-neutral-800/60' : ''
-              }`}
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">{doc.title}</p>
-                <div className="flex items-center gap-2 mt-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
-                  <span className="font-[family-name:var(--font-mono,'IBM_Plex_Mono',ui-monospace,monospace)]">{doc.id}</span>
-                  <span>·</span>
-                  <span>{doc.fileSize}</span>
-                  <span>·</span>
-                  <span>Updated {formatDate(doc.updatedAt)}</span>
-                </div>
-              </div>
-              <span className="text-xs text-neutral-600 dark:text-neutral-300">{docTypeLabel(doc.type)}</span>
-              <span className="text-xs text-neutral-500 dark:text-neutral-400 text-center font-[family-name:var(--font-mono,'IBM_Plex_Mono',ui-monospace,monospace)]">v{doc.version}</span>
-              <span className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 text-center uppercase">{doc.format}</span>
-              <div className="flex justify-center">
-                <StatusPill cfg={statusCfg} />
-              </div>
-              <div className="flex justify-center">
-                <button
-                  onClick={() => onDownload?.(doc.id)}
-                  className="p-1.5 rounded-md text-neutral-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-950/30 transition-colors cursor-pointer"
-                >
-                  <Download size={13} />
-                </button>
-              </div>
-            </div>
+        {documents.map((doc, idx) => {
+          const statusCfg = DOC_STATUS[doc.status]
+          const isLast = idx === documents.length - 1
+          const isHidden = hiddenDocIds.has(doc.id)
 
-            {/* Mobile card */}
-            <div
-              className={`sm:hidden px-5 py-4 ${
-                !isLast ? 'border-b border-neutral-100 dark:border-neutral-800/60' : ''
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2">
+          return (
+            <div key={doc.id}>
+              {/* Desktop row */}
+              <div
+                className={`hidden sm:grid grid-cols-[1fr_100px_80px_60px_80px_80px_48px] gap-2 px-5 py-3.5 items-center hover:bg-neutral-50 dark:hover:bg-neutral-800/30 transition-colors ${
+                  !isLast ? 'border-b border-neutral-100 dark:border-neutral-800/60' : ''
+                } ${isHidden ? 'opacity-60' : ''}`}
+              >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{doc.title}</p>
-                  <div className="flex items-center gap-2 mt-1 text-[10px] text-neutral-400 dark:text-neutral-500 flex-wrap">
-                    <span>{docTypeLabel(doc.type)}</span>
-                    <span>·</span>
-                    <span>v{doc.version}</span>
-                    <span>·</span>
-                    <span className="uppercase">{doc.format}</span>
+                  <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">{doc.title}</p>
+                  <div className="flex items-center gap-2 mt-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
+                    <span className="font-[family-name:var(--font-mono,'IBM_Plex_Mono',ui-monospace,monospace)]">{doc.id}</span>
                     <span>·</span>
                     <span>{doc.fileSize}</span>
+                    <span>·</span>
+                    <span>Updated {formatDate(doc.updatedAt)}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-neutral-600 dark:text-neutral-300">{docTypeLabel(doc.type)}</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-400 text-center font-[family-name:var(--font-mono,'IBM_Plex_Mono',ui-monospace,monospace)]">v{doc.version}</span>
+                <span className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 text-center uppercase">{doc.format}</span>
+                <div className="flex justify-center">
                   <StatusPill cfg={statusCfg} />
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => toggleVisibility(doc.id)}
+                    title={isHidden ? 'Make visible' : 'Restrict visibility'}
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-colors cursor-pointer ${
+                      isHidden
+                        ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                        : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-950/50'
+                    }`}
+                  >
+                    {isHidden ? <EyeOff size={11} /> : <Eye size={11} />}
+                    {isHidden ? 'Hidden' : 'Visible'}
+                  </button>
+                </div>
+                <div className="flex justify-center">
                   <button
                     onClick={() => onDownload?.(doc.id)}
-                    className="p-1.5 rounded-md text-neutral-400 hover:text-yellow-500 transition-colors cursor-pointer"
+                    className="p-1.5 rounded-md text-neutral-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-950/30 transition-colors cursor-pointer"
                   >
                     <Download size={13} />
                   </button>
                 </div>
               </div>
+
+              {/* Mobile card */}
+              <div
+                className={`sm:hidden px-5 py-4 ${
+                  !isLast ? 'border-b border-neutral-100 dark:border-neutral-800/60' : ''
+                } ${isHidden ? 'opacity-60' : ''}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{doc.title}</p>
+                    <div className="flex items-center gap-2 mt-1 text-[10px] text-neutral-400 dark:text-neutral-500 flex-wrap">
+                      <span>{docTypeLabel(doc.type)}</span>
+                      <span>·</span>
+                      <span>v{doc.version}</span>
+                      <span>·</span>
+                      <span className="uppercase">{doc.format}</span>
+                      <span>·</span>
+                      <span>{doc.fileSize}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <StatusPill cfg={statusCfg} />
+                    <button
+                      onClick={() => onDownload?.(doc.id)}
+                      className="p-1.5 rounded-md text-neutral-400 hover:text-yellow-500 transition-colors cursor-pointer"
+                    >
+                      <Download size={13} />
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-2">
+                  <button
+                    onClick={() => toggleVisibility(doc.id)}
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-colors cursor-pointer ${
+                      isHidden
+                        ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300'
+                        : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400'
+                    }`}
+                  >
+                    {isHidden ? <EyeOff size={11} /> : <Eye size={11} />}
+                    {isHidden ? 'Hidden' : 'Visible'}
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
     </div>
   )
 }

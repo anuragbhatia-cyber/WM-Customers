@@ -2,50 +2,33 @@ import { useState } from 'react'
 import { formatDate, timeAgo } from '@/lib/format'
 import {
   ArrowLeft,
-  Plus,
   MessageSquare,
   FileText,
-  Scale,
-  User,
-  Search,
   Download,
   Paperclip,
   CheckCircle2,
-  StickyNote,
+  MessageCircle,
+  Send,
 } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog'
 import type {
   CaseDetailProps,
   Case,
   CaseFollowUp,
-  CaseNote,
   CaseDocument,
-  Lawyer,
   CaseStatus,
   DocumentStatus,
   DocumentType,
-  AuthorRole,
-  LawyerAvailability,
-  ServiceAction,
 } from '@/../product/sections/case-management/types'
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-type TabKey = 'followups' | 'details' | 'notes' | 'documents'
+type TabKey = 'followups' | 'details' | 'documents'
 
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: 'followups', label: 'Follow-ups', icon: <MessageSquare size={14} /> },
   { key: 'details', label: 'Case Details', icon: <FileText size={14} /> },
-  { key: 'notes', label: 'Notes', icon: <StickyNote size={14} /> },
   { key: 'documents', label: 'Documents', icon: <FileText size={14} /> },
 ]
 
@@ -72,32 +55,6 @@ const DOC_TYPE_LABELS: Record<DocumentType, string> = {
   'succession-certificate': 'Succession Certificate',
 }
 
-const AUTHOR_ROLE_CONFIG: Record<AuthorRole, { label: string; bg: string; text: string }> = {
-  lawyer: { label: 'Lawyer', bg: 'bg-yellow-50 dark:bg-yellow-950/30', text: 'text-yellow-700 dark:text-yellow-400' },
-  operations: { label: 'Operations', bg: 'bg-sky-50 dark:bg-sky-950/30', text: 'text-sky-700 dark:text-sky-400' },
-  admin: { label: 'Admin', bg: 'bg-violet-50 dark:bg-violet-950/30', text: 'text-violet-700 dark:text-violet-400' },
-  legal: { label: 'Legal', bg: 'bg-emerald-50 dark:bg-emerald-950/30', text: 'text-emerald-700 dark:text-emerald-400' },
-}
-
-const SERVICE_ACTION_CONFIG: Record<string, { bg: string; text: string }> = {
-  'Drafting': { bg: 'bg-violet-100 dark:bg-violet-900/30', text: 'text-violet-700 dark:text-violet-400' },
-  'Client Review': { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-400' },
-  'Revision': { bg: 'bg-sky-100 dark:bg-sky-900/30', text: 'text-sky-700 dark:text-sky-400' },
-  'Registration': { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-400' },
-  'Advisory': { bg: 'bg-neutral-200 dark:bg-neutral-700', text: 'text-neutral-700 dark:text-neutral-300' },
-  'Trust Drafting': { bg: 'bg-violet-100 dark:bg-violet-900/30', text: 'text-violet-700 dark:text-violet-400' },
-  'Trust Registration': { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-400' },
-  'Application Filing': { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-400' },
-  'Court Hearing': { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-400' },
-  'Certificate Obtained': { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-400' },
-}
-
-const AVAILABILITY_CONFIG: Record<LawyerAvailability, { label: string; dot: string; text: string }> = {
-  available: { label: 'Available', dot: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400' },
-  busy: { label: 'Busy', dot: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-400' },
-  'on-leave': { label: 'On Leave', dot: 'bg-neutral-400', text: 'text-neutral-500 dark:text-neutral-400' },
-}
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -107,24 +64,6 @@ function formatDateTime(iso: string) {
   return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) +
     ' at ' +
     d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
-}
-
-function getInitials(name: string) {
-  return name.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2)
-}
-
-const INITIAL_COLORS = [
-  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
-  'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300',
-  'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
-  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
-]
-
-function getInitialColor(name: string) {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  return INITIAL_COLORS[Math.abs(hash) % INITIAL_COLORS.length]
 }
 
 function formatCaseId(id: string): string {
@@ -145,79 +84,11 @@ function daysBetween(a: string, b: string) {
 export function CaseDetail({
   caseData,
   followUps,
-  notes,
   documents,
-  lawyers,
-  onEdit,
-  onAddFollowUp,
-  onAddNote,
-  onAssignLawyer,
   onDownloadDocument,
   onBack,
 }: CaseDetailProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('followups')
-
-  // Modal state
-  const [followUpModalOpen, setFollowUpModalOpen] = useState(false)
-  const [noteModalOpen, setNoteModalOpen] = useState(false)
-  const [assignLawyerModalOpen, setAssignLawyerModalOpen] = useState(false)
-
-  // Follow-up form state
-  const [followUpDate, setFollowUpDate] = useState('')
-  const [followUpType, setFollowUpType] = useState('Call')
-  const [followUpNotes, setFollowUpNotes] = useState('')
-  const [followUpAttachments, setFollowUpAttachments] = useState<string[]>([])
-
-  // Note form state
-  const [noteContent, setNoteContent] = useState('')
-  const [noteAttachments, setNoteAttachments] = useState<string[]>([])
-
-  // Assign lawyer state
-  const [assignLawyerSearch, setAssignLawyerSearch] = useState('')
-  const [selectedLawyerId, setSelectedLawyerId] = useState<string | null>(null)
-
-  function openFollowUpModal() {
-    setFollowUpDate('')
-    setFollowUpType('Call')
-    setFollowUpNotes('')
-    setFollowUpAttachments([])
-    setFollowUpModalOpen(true)
-  }
-
-  function handleFollowUpSave() {
-    onAddFollowUp?.()
-    setFollowUpModalOpen(false)
-  }
-
-  function openNoteModal() {
-    setNoteContent('')
-    setNoteAttachments([])
-    setNoteModalOpen(true)
-  }
-
-  function handleNoteSave() {
-    onAddNote?.()
-    setNoteModalOpen(false)
-  }
-
-  function openAssignLawyerModal() {
-    setAssignLawyerSearch('')
-    setSelectedLawyerId(null)
-    setAssignLawyerModalOpen(true)
-  }
-
-  function handleAssignLawyer() {
-    if (selectedLawyerId) {
-      onAssignLawyer?.(selectedLawyerId)
-    }
-    setAssignLawyerModalOpen(false)
-  }
-
-  const filteredLawyersForModal = lawyers.filter(l => {
-    if (!assignLawyerSearch.trim()) return true
-    const q = assignLawyerSearch.toLowerCase()
-    return l.name.toLowerCase().includes(q) || l.specialization.toLowerCase().includes(q)
-  })
 
   const statusCfg = CASE_STATUS_CONFIG[caseData.status]
 
@@ -262,7 +133,6 @@ export function CaseDetail({
               const isActive = activeTab === tab.key
               let count: number | null = null
               if (tab.key === 'followups') count = followUps.length
-              else if (tab.key === 'notes') count = notes.length
               else if (tab.key === 'documents') count = documents.length
 
               return (
@@ -292,275 +162,45 @@ export function CaseDetail({
       {/* ── Tab Content ─────────────────────────────────────────────────── */}
       <div>
         {activeTab === 'followups' && (
-          <FollowUpsTab followUps={followUps} onAddFollowUp={openFollowUpModal} />
+          <FollowUpsTab followUps={followUps} />
         )}
         {activeTab === 'details' && (
           <DetailsTab caseData={caseData} />
-        )}
-        {activeTab === 'notes' && (
-          <NotesTab notes={notes} onAddNote={openNoteModal} />
         )}
         {activeTab === 'documents' && (
           <DocumentsTab documents={documents} onDownloadDocument={onDownloadDocument} />
         )}
       </div>
-
-      {/* ── Add Follow-up Modal ───────────────────────────────────────────── */}
-      <Dialog open={followUpModalOpen} onOpenChange={setFollowUpModalOpen}>
-        <DialogContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700">
-          <DialogHeader>
-            <DialogTitle className="text-neutral-900 dark:text-neutral-100">Add Follow-up</DialogTitle>
-            <DialogDescription className="text-neutral-500 dark:text-neutral-400">Record a new follow-up entry for this case.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Date</label>
-              <input
-                type="date"
-                value={followUpDate}
-                onChange={(e) => setFollowUpDate(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Type</label>
-              <select
-                value={followUpType}
-                onChange={(e) => setFollowUpType(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
-              >
-                <option value="Call">Call</option>
-                <option value="Email">Email</option>
-                <option value="Meeting">Meeting</option>
-                <option value="Court Visit">Court Visit</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Notes</label>
-              <textarea
-                rows={4}
-                value={followUpNotes}
-                onChange={(e) => setFollowUpNotes(e.target.value)}
-                placeholder="Enter follow-up details..."
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Attachments</label>
-              {followUpAttachments.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {followUpAttachments.map((file, i) => (
-                    <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-neutral-50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded-lg border border-neutral-200 dark:border-neutral-700">
-                      <FileText size={11} />
-                      {file}
-                      <button
-                        onClick={() => setFollowUpAttachments(prev => prev.filter((_, idx) => idx !== i))}
-                        className="text-neutral-400 hover:text-red-500 transition-colors cursor-pointer ml-0.5"
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  const names = ['Document.pdf', 'Agreement.pdf', 'ID_Proof.jpg', 'Court_Order.pdf', 'Will_Draft.docx', 'Receipt.pdf', 'Affidavit.pdf', 'Photo.png']
-                  const randomFile = names[Math.floor(Math.random() * names.length)]
-                  setFollowUpAttachments(prev => [...prev, randomFile])
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
-              >
-                <Paperclip size={12} />
-                Add Attachment
-              </button>
-            </div>
-          </div>
-          <DialogFooter>
-            <button
-              onClick={() => setFollowUpModalOpen(false)}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleFollowUpSave}
-              className="rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-600 transition-colors"
-            >
-              Add Follow-up
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Add Note Modal ────────────────────────────────────────────────── */}
-      <Dialog open={noteModalOpen} onOpenChange={setNoteModalOpen}>
-        <DialogContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700">
-          <DialogHeader>
-            <DialogTitle className="text-neutral-900 dark:text-neutral-100">Add Note</DialogTitle>
-            <DialogDescription className="text-neutral-500 dark:text-neutral-400">Add an internal note to this case.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Content</label>
-              <textarea
-                rows={4}
-                value={noteContent}
-                onChange={(e) => setNoteContent(e.target.value)}
-                placeholder="Write your note here..."
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Attachments</label>
-              {noteAttachments.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {noteAttachments.map((file, i) => (
-                    <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-neutral-50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded-lg border border-neutral-200 dark:border-neutral-700">
-                      <FileText size={11} />
-                      {file}
-                      <button
-                        onClick={() => setNoteAttachments(prev => prev.filter((_, idx) => idx !== i))}
-                        className="text-neutral-400 hover:text-red-500 transition-colors cursor-pointer ml-0.5"
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  const names = ['Document.pdf', 'Agreement.pdf', 'ID_Proof.jpg', 'Court_Order.pdf', 'Will_Draft.docx', 'Receipt.pdf', 'Affidavit.pdf', 'Photo.png']
-                  const randomFile = names[Math.floor(Math.random() * names.length)]
-                  setNoteAttachments(prev => [...prev, randomFile])
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
-              >
-                <Paperclip size={12} />
-                Add Attachment
-              </button>
-            </div>
-          </div>
-          <DialogFooter>
-            <button
-              onClick={() => setNoteModalOpen(false)}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleNoteSave}
-              className="rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-600 transition-colors"
-            >
-              Add Note
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Assign Lawyer Modal ───────────────────────────────────────────── */}
-      <Dialog open={assignLawyerModalOpen} onOpenChange={setAssignLawyerModalOpen}>
-        <DialogContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-neutral-900 dark:text-neutral-100">Assign Lawyer</DialogTitle>
-            <DialogDescription className="text-neutral-500 dark:text-neutral-400">Select a lawyer to assign to this case.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <input
-                type="text"
-                value={assignLawyerSearch}
-                onChange={(e) => setAssignLawyerSearch(e.target.value)}
-                placeholder="Search lawyers..."
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
-              />
-            </div>
-            <div className="max-h-64 overflow-y-auto space-y-2">
-              {filteredLawyersForModal.map((lawyer) => {
-                const isSelected = selectedLawyerId === lawyer.id
-                const isCurrent = lawyer.id === caseData.lawyerId
-                const availCfg = AVAILABILITY_CONFIG[lawyer.availability]
-                return (
-                  <button
-                    key={lawyer.id}
-                    onClick={() => setSelectedLawyerId(lawyer.id)}
-                    disabled={isCurrent}
-                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                      isSelected
-                        ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/30'
-                        : isCurrent
-                          ? 'border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/40 opacity-60 cursor-not-allowed'
-                          : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 cursor-pointer'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{lawyer.name}</p>
-                          {isCurrent && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400">
-                              Current
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{lawyer.specialization}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 mt-1.5 text-[10px] text-neutral-400 dark:text-neutral-500">
-                      <span>{lawyer.experience} yrs exp</span>
-                      <span>{lawyer.activeCases} active cases</span>
-                      <span>{lawyer.rating.toFixed(1)} rating</span>
-                    </div>
-                  </button>
-                )
-              })}
-              {filteredLawyersForModal.length === 0 && (
-                <p className="text-sm text-neutral-400 dark:text-neutral-500 text-center py-4">No lawyers found</p>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <button
-              onClick={() => setAssignLawyerModalOpen(false)}
-              className="rounded-lg border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleAssignLawyer}
-              disabled={!selectedLawyerId}
-              className="rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Assign Lawyer
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
+
 
 // ===========================================================================
 // Tab: Follow-ups
 // ===========================================================================
 
-function FollowUpsTab({ followUps, onAddFollowUp }: { followUps: CaseFollowUp[]; onAddFollowUp?: () => void }) {
+type FollowUpComment = {
+  id: string
+  followUpId: string
+  author: string
+  content: string
+  attachments: string[]
+  createdAt: string
+}
+
+function FollowUpsTab({ followUps }: { followUps: CaseFollowUp[] }) {
   const sorted = [...followUps].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  const [comments, setComments] = useState<FollowUpComment[]>([])
+
+  function handleAddComment(comment: FollowUpComment) {
+    setComments(prev => [...prev, comment])
+  }
 
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Follow-up Timeline</h2>
-        <button
-          onClick={onAddFollowUp}
-          className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-500 transition-colors cursor-pointer shadow-sm"
-        >
-          <Plus size={12} />
-          Add Follow-up
-        </button>
       </div>
 
       {sorted.length === 0 ? (
@@ -572,9 +212,8 @@ function FollowUpsTab({ followUps, onAddFollowUp }: { followUps: CaseFollowUp[];
 
           <div className="space-y-0">
             {sorted.map((fu, idx) => {
-              const actionCfg = SERVICE_ACTION_CONFIG[fu.serviceAction] ?? SERVICE_ACTION_CONFIG['Advisory']
-              const roleCfg = AUTHOR_ROLE_CONFIG[fu.authorRole]
               const isFirst = idx === 0
+              const followUpComments = comments.filter(c => c.followUpId === fu.id)
 
               return (
                 <div key={fu.id} className="relative flex gap-4 pb-6 last:pb-0">
@@ -607,17 +246,11 @@ function FollowUpsTab({ followUps, onAddFollowUp }: { followUps: CaseFollowUp[];
                     <p className="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed mb-3">{fu.notes}</p>
 
                     {fu.attachments.length > 0 && (
-                      <div className="flex items-center justify-end">
-                        <div className="flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">
+                      <div className="mt-2.5 pt-2.5 border-t border-neutral-100 dark:border-neutral-800">
+                        <div className="flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500 mb-1.5">
                           <Paperclip size={10} />
                           <span>{fu.attachments.length} {fu.attachments.length === 1 ? 'file' : 'files'}</span>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Attachment list */}
-                    {fu.attachments.length > 0 && (
-                      <div className="mt-2.5 pt-2.5 border-t border-neutral-100 dark:border-neutral-800">
                         <div className="flex flex-wrap gap-1.5">
                           {fu.attachments.map((att, i) => (
                             <span key={i} className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium bg-neutral-50 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 rounded border border-neutral-200 dark:border-neutral-700">
@@ -628,10 +261,152 @@ function FollowUpsTab({ followUps, onAddFollowUp }: { followUps: CaseFollowUp[];
                         </div>
                       </div>
                     )}
+
+                    {/* Comments section */}
+                    <CommentsSection
+                      followUpId={fu.id}
+                      comments={followUpComments}
+                      onAddComment={handleAddComment}
+                    />
                   </div>
                 </div>
               )
             })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ===========================================================================
+// Follow-up Comments
+// ===========================================================================
+
+function CommentsSection({
+  followUpId,
+  comments,
+  onAddComment,
+}: {
+  followUpId: string
+  comments: FollowUpComment[]
+  onAddComment: (comment: FollowUpComment) => void
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const [content, setContent] = useState('')
+  const [attachments, setAttachments] = useState<string[]>([])
+
+  function handleAddAttachment() {
+    const names = ['Document.pdf', 'Agreement.pdf', 'ID_Proof.jpg', 'Court_Order.pdf', 'Will_Draft.docx', 'Receipt.pdf', 'Affidavit.pdf', 'Photo.png']
+    const randomFile = names[Math.floor(Math.random() * names.length)]
+    setAttachments(prev => [...prev, randomFile])
+  }
+
+  function handleSubmit() {
+    if (!content.trim() && attachments.length === 0) return
+    onAddComment({
+      id: `cmt-${Date.now()}`,
+      followUpId,
+      author: 'You',
+      content: content.trim(),
+      attachments,
+      createdAt: new Date().toISOString(),
+    })
+    setContent('')
+    setAttachments([])
+    setExpanded(false)
+  }
+
+  return (
+    <div className="mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+      {comments.length > 0 && (
+        <div className="space-y-2 mb-2.5">
+          {comments.map(cmt => (
+            <div key={cmt.id} className="bg-neutral-50 dark:bg-neutral-800/40 rounded-lg p-2.5">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] font-semibold text-neutral-700 dark:text-neutral-300">{cmt.author}</span>
+                <span className="text-[10px] text-neutral-400 dark:text-neutral-500">{timeAgo(cmt.createdAt)}</span>
+              </div>
+              {cmt.content && (
+                <p className="text-[11px] text-neutral-600 dark:text-neutral-300 leading-relaxed">{cmt.content}</p>
+              )}
+              {cmt.attachments.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {cmt.attachments.map((att, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 rounded border border-neutral-200 dark:border-neutral-700">
+                      <FileText size={9} />
+                      {att}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!expanded ? (
+        <button
+          onClick={() => setExpanded(true)}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
+        >
+          <MessageCircle size={11} />
+          {comments.length > 0 ? `${comments.length} ${comments.length === 1 ? 'comment' : 'comments'} · Reply` : 'Comment'}
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <textarea
+            rows={2}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Write a comment..."
+            className="w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-xs text-neutral-900 placeholder-neutral-400 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
+          />
+          {attachments.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {attachments.map((file, i) => (
+                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-neutral-50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded border border-neutral-200 dark:border-neutral-700">
+                  <FileText size={10} />
+                  {file}
+                  <button
+                    onClick={() => setAttachments(prev => prev.filter((_, idx) => idx !== i))}
+                    className="text-neutral-400 hover:text-red-500 transition-colors cursor-pointer ml-0.5"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={handleAddAttachment}
+              className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded transition-colors cursor-pointer"
+            >
+              <Paperclip size={11} />
+              Attach
+            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => {
+                  setExpanded(false)
+                  setContent('')
+                  setAttachments([])
+                }}
+                className="px-2.5 py-1 text-[11px] font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={!content.trim() && attachments.length === 0}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-white bg-yellow-500 rounded hover:bg-yellow-600 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Send size={10} />
+                Post
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -718,56 +493,6 @@ function DetailsTab({ caseData }: { caseData: Case }) {
           </div>
         </SectionCard>
       </div>
-    </div>
-  )
-}
-
-// ===========================================================================
-// Tab: Notes
-// ===========================================================================
-
-function NotesTab({ notes, onAddNote }: { notes: CaseNote[]; onAddNote?: () => void }) {
-  const sorted = [...notes].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Internal Notes</h2>
-        </div>
-        <button
-          onClick={onAddNote}
-          className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-500 transition-colors cursor-pointer shadow-sm"
-        >
-          <Plus size={12} />
-          Add Note
-        </button>
-      </div>
-
-      {sorted.length === 0 ? (
-        <EmptyState icon={<StickyNote size={32} />} title="No notes yet" subtitle="Add internal notes for private team observations." />
-      ) : (
-        <div className="space-y-3">
-          {sorted.map(note => {
-            const roleCfg = AUTHOR_ROLE_CONFIG[note.authorRole]
-            return (
-              <div key={note.id} className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xs dark:shadow-none p-4">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold ${getInitialColor(note.author)}`}>
-                      {getInitials(note.author)}
-                    </div>
-                    <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">{note.author}</span>
-                    <span className={`px-1 py-0.5 rounded text-[9px] font-semibold ${roleCfg.bg} ${roleCfg.text}`}>{roleCfg.label}</span>
-                  </div>
-                  <span className="text-[10px] text-neutral-400 dark:text-neutral-500">{formatDateTime(note.createdAt)}</span>
-                </div>
-                <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">{note.content}</p>
-              </div>
-            )
-          })}
-        </div>
-      )}
     </div>
   )
 }

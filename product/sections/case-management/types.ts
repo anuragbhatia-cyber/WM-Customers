@@ -202,20 +202,8 @@ export interface CaseDetailProps {
   caseData: Case
   /** Follow-up timeline entries for this case */
   followUps: CaseFollowUp[]
-  /** Internal notes for this case */
-  notes: CaseNote[]
   /** Documents generated for this case */
   documents: CaseDocument[]
-  /** Available lawyers for assignment */
-  lawyers: Lawyer[]
-  /** Called when user wants to edit the case */
-  onEdit?: () => void
-  /** Called when user wants to add a follow-up */
-  onAddFollowUp?: () => void
-  /** Called when user wants to add a note */
-  onAddNote?: () => void
-  /** Called when user wants to assign/reassign a lawyer */
-  onAssignLawyer?: (lawyerId: string) => void
   /** Called when user wants to download a document */
   onDownloadDocument?: (docId: string) => void
   /** Called when user navigates back */

@@ -740,13 +740,6 @@ export function LeadDetail({
               <div>
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Follow-ups</h2>
-                  <button
-                    onClick={openFollowUpModal}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-500 transition-colors cursor-pointer shadow-sm"
-                  >
-                    <Plus size={12} />
-                    Add Follow-up
-                  </button>
                 </div>
 
                 {sortedFollowUps.length === 0 ? (
